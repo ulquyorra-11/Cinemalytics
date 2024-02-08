@@ -42,6 +42,12 @@ To run the project, follow these instructions:
 - Scikit-learn: For machine learning and predictive data analysis.
 - Further libraries...
 
+## Datasets
+We utilize the following datasets for our analysis:
+- **Netflix Movies and TV Shows**: [View Dataset](https://www.kaggle.com/datasets/shivamb/netflix-shows/data)
+- **Amazon Prime Movies and TV Shows**: [View Dataset](https://www.kaggle.com/datasets/shivamb/amazon-prime-movies-and-tv-shows)
+- **Disney+ Movies and TV Shows**: [View Dataset](https://www.kaggle.com/datasets/shivamb/disney-movies-and-tv-shows)
+
 ## Contributing
 We welcome contributions to the Streaming Service Selector project! If you have suggestions for improvements or bug fixes, please follow these steps:
 
