@@ -1,7 +1,9 @@
-# Streaming Service Selector Project
+# Cinemalytics
+
+![Cinemalytics Logo](https://github.com/ulquyorra-11/Cinemalytics/blob/main/images/logo_banner.jpg)
 
 ## Description
-The Streaming Service Selector is a data science project designed to analyze and compare the success rates of various genres across major streaming platforms like Netflix, Prime Video, and Disney+. Our goal is to provide actionable insights for content creators to help them choose the most strategic platform for releasing their shows or movies, based on genre-specific performance insights.
+Cinemalytics is a data science project designed to analyze and compare the success rates of various genres across major streaming platforms like Netflix, Prime Video, and Disney+. Our goal is to provide actionable insights for content creators to help them choose the most strategic platform for releasing their shows or movies, based on genre-specific performance insights.
 
 ## Getting Started
 
@@ -15,11 +17,11 @@ To set up the project environment, follow these steps:
 
 1. Clone the repository to your local machine:
     ```
-    git clone https://github.com/yourusername/streaming-service-selector.git
+    git clone https://github.com/yourusername/cinemalytics.git
     ```
 2. Navigate to the project directory:
     ```
-    cd streaming-service-selector
+    cd cinemalytics
     ```
 3. Install the required libraries:
     ```
@@ -39,7 +41,8 @@ To run the project, follow these instructions:
 - Pandas: For data manipulation and analysis.
 - NumPy: For numerical computing.
 - Matplotlib/Seaborn: For data visualization.
-- Scikit-learn: For machine learning and predictive data analysis.
+- Tkinter: For GUI applications.
+- Pillow (PIL): For image processing in Python.
 - Further libraries...
 
 ## Datasets
@@ -47,10 +50,10 @@ We utilize the following datasets for our analysis:
 - **Netflix Movies and TV Shows**: [View Dataset](https://www.kaggle.com/datasets/shivamb/netflix-shows/data)
 - **Amazon Prime Movies and TV Shows**: [View Dataset](https://www.kaggle.com/datasets/shivamb/amazon-prime-movies-and-tv-shows)
 - **Disney+ Movies and TV Shows**: [View Dataset](https://www.kaggle.com/datasets/shivamb/disney-movies-and-tv-shows)
-- **IMDB Movies Dataset**: [View Dataset](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows)
+- **(Outdated) IMDB Movies Dataset**: [View Dataset](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows)
 
 ## Contributing
-We welcome contributions to the Streaming Service Selector project! If you have suggestions for improvements or bug fixes, please follow these steps:
+We welcome contributions to the Cinemalytics project! If you have suggestions for improvements or bug fixes, please follow these steps:
 
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature/YourFeatureName`).
@@ -67,4 +70,3 @@ We welcome contributions to the Streaming Service Selector project! If you have 
 
 ## Contact Information
 For any queries or further information, please contact us at (our names and emails).
-
