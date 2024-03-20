@@ -1,9 +1,8 @@
 import pandas as pd
-from tkinter import Tk, Label, Button, Entry, Toplevel, StringVar
+from tkinter import Tk, Label, Button, Entry, StringVar, messagebox, Frame
 from PIL import Image, ImageTk
 from joblib import load
 from tkinter.ttk import Combobox
-from tkinter import messagebox
 
 def load_data():
     dataset_path = '/Users/samer/Documents/github_repos/Cinemalytics/data/clean/updated_clean_combined_movies.csv'
@@ -48,10 +47,11 @@ def center_window(root, width=1200, height=600):
 # Function to create the start window
 def start_window():
     root = Tk()
-    center_window(root)  # This line centers the window and sets the size
+    root.attributes("-alpha", 0.9)  # Set window transparency
+    center_window(root, width=1200, height=600)  # Set window size and center it
     root.title("Cinemalytics")
 
-    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(200, 200))
+    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(300, 300))
     logo_label = Label(root, image=logo_image)
     logo_label.image = logo_image
     logo_label.pack(pady=50)
@@ -61,18 +61,18 @@ def start_window():
 
     root.mainloop()
 
-
 # Function to create the Platform Prediction window
 def platform_window(previous_root):
     previous_root.destroy()
     root = Tk()
-    root.geometry('600x400')  # Set the window size
+    root.attributes("-alpha", 0.9)  # Set window transparency
+    center_window(root)  # Set window size and center it
     root.title("Platform Prediction")
 
-    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(200, 200))
+    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(300, 300))
     logo_label = Label(root, image=logo_image)
     logo_label.image = logo_image
-    logo_label.grid(row=0, column=0, columnspan=2)
+    logo_label.grid(row=0, column=0, columnspan=2, padx=20, pady=20)
 
     # Store user inputs
     genre_var = StringVar()
@@ -80,17 +80,26 @@ def platform_window(previous_root):
     duration_var = StringVar()
 
     # Create widgets
-    Label(root, text="Genre:").grid(row=1, column=0, padx=10, pady=10)
-    Combobox(root, textvariable=genre_var, values=unique_genres).grid(row=1, column=1, padx=10, pady=10)
+    Label(root, text="Genre:").grid(row=1, column=0, padx=10, pady=5)  # Adjusted pady
+    genre_combobox = Combobox(root, textvariable=genre_var, values=unique_genres)
+    genre_combobox.grid(row=1, column=1, padx=10, pady=5)  # Adjusted pady
 
-    Label(root, text="Age Rating:").grid(row=2, column=0, padx=10, pady=10)
-    Combobox(root, textvariable=age_rating_var, values=unique_age_ratings).grid(row=2, column=1, padx=10, pady=10)
+    Label(root, text="Age Rating:").grid(row=2, column=0, padx=10, pady=5)  # Adjusted pady
+    age_rating_combobox = Combobox(root, textvariable=age_rating_var, values=unique_age_ratings)
+    age_rating_combobox.grid(row=2, column=1, padx=10, pady=5)  # Adjusted pady
 
-    Label(root, text="Duration (min):").grid(row=3, column=0, padx=10, pady=10)
-    Entry(root, textvariable=duration_var).grid(row=3, column=1, padx=10, pady=10)
+    Label(root, text="Duration (min):").grid(row=3, column=0, padx=10, pady=5)  # Adjusted pady
+    duration_entry = Entry(root, textvariable=duration_var)
+    duration_entry.grid(row=3, column=1, padx=10, pady=5)  # Adjusted pady
 
     predict_button = Button(root, text="Predict Platform", command=lambda: validate_and_predict(root, genre_var.get(), duration_var.get(), age_rating_var.get()))
     predict_button.grid(row=4, column=0, columnspan=2, pady=10)
+
+    # Center all elements vertically and horizontally
+    for i in range(5):  # Adjusted range to match number of rows
+        root.grid_rowconfigure(i, weight=1)
+    for j in range(2):  # Adjusted range to match number of columns
+        root.grid_columnconfigure(j, weight=1)
 
     root.mainloop()
 
@@ -107,7 +116,6 @@ def validate_and_predict(root, genre_input, duration_input, age_rating_input):
         return
 
     predict_platform(root, genre_input, duration_input, age_rating_input)
-
 
 # Function to predict the platform and display the result
 def predict_platform(previous_root, genre_input, duration_input, age_rating_input):
@@ -132,71 +140,43 @@ def predict_platform(previous_root, genre_input, duration_input, age_rating_inpu
         predicted_platform_encoded = clf.predict(input_features)
         predicted_platform = label_encoder_platform.inverse_transform(predicted_platform_encoded)[0]
 
-        # After prediction, close the current window and open the result window
+        # After getting the prediction, display the result
         previous_root.destroy()
-        result_window(predicted_platform, clf_regressor, genre_encoded, duration, age_rating_encoded)
+        result_window(predicted_platform)
 
     except ValueError as e:
         messagebox.showerror("Input Error", f"Please ensure all inputs are correctly formatted.\n{e}")
     except Exception as e:
         messagebox.showerror("Prediction Error", f"An error occurred during prediction.\n{e}")
 
-# Function to create the Result window based on the platform
-def result_window(platform, clf_regressor, genre_encoded, duration, age_rating_encoded):
+def result_window(platform):
     root = Tk()
+    root.attributes("-alpha", 0.9)  # Set window transparency
+    center_window(root, width=1200, height=600)  # Set window size and center it
     root.title(f"{platform} Prediction")
 
-    platform_theme = {
-        'Netflix': {
-            'color': '#E50914',
-            'logo_path': '/Users/samer/Documents/github_repos/Cinemalytics/images/netflix_logo_4.png'
-        },
-        'Prime Video': {
-            'color': '#00A8E1',
-            'logo_path': '/Users/samer/Documents/github_repos/Cinemalytics/images/prime_video_logo1.webp'
-        },
-        'Disney+': {
-            'color': '#000c7c',
-            'logo_path': '/Users/samer/Documents/github_repos/Cinemalytics/images/disney_plus_logo1.png'
-        }
+    # Load App Logo
+    app_logo_path = '/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png'
+    app_logo_image = load_image(app_logo_path, size=(300, 300))
+    app_logo_label = Label(root, image=app_logo_image)
+    app_logo_label.image = app_logo_image
+    app_logo_label.pack(pady=50)
+
+    platform_logos = {
+        'Netflix': '/Users/samer/Documents/github_repos/Cinemalytics/images/netflix_logo_4.png',
+        'Prime Video': '/Users/samer/Documents/github_repos/Cinemalytics/images/prime_video_logo1.webp',
+        'Disney+': '/Users/samer/Documents/github_repos/Cinemalytics/images/disney_plus_logo1.png'
     }
 
-    theme = platform_theme.get(platform, {'color': 'white', 'logo_path': ''})
-    root.configure(bg=theme['color'])
+    logo_path = platform_logos.get(platform)
+    if logo_path:
+        logo_image = load_image(logo_path)
+        logo_label = Label(root, image=logo_image)
+        logo_label.image = logo_image
+        logo_label.pack(pady=20)
 
-    logo_image = load_image(theme['logo_path'])
-    logo_label = Label(root, image=logo_image, bg=theme['color'])
-    logo_label.image = logo_image
-    logo_label.pack(pady=10)
-
-    message_label = Label(root, text=f"Based on your criteria, the best platform for your movie is {platform}", bg=theme['color'], fg='white')
+    message_label = Label(root, text=f"Based on your criteria, the best platform for your movie is {platform}")
     message_label.pack(pady=10)
-
-    revenue_button = Button(root, text="Predict Revenue", command=lambda: revenue_window(root, clf_regressor, genre_encoded, duration, age_rating_encoded))
-    revenue_button.pack(pady=10)
-
-    root.mainloop()
-
-# Function to create the Revenue window
-def revenue_window(previous_root, clf_regressor, genre_encoded, duration, age_rating_encoded):
-    previous_root.destroy()
-    root = Tk()
-    root.title("Revenue Prediction")
-
-    # Prepare features for the revenue prediction
-    input_features = pd.DataFrame({
-        'genre_encoded': [genre_encoded],
-        'duration_min': [duration],
-        'age_rating_encoded': [age_rating_encoded]
-    })
-
-    # Predict the revenue
-    predicted_revenue = clf_regressor.predict(input_features)[0]
-    lower_estimate = predicted_revenue * 0.9
-    upper_estimate = predicted_revenue * 1.1
-
-    revenue_label = Label(root, text=f"Based on your criteria, the predicted revenue is between ${lower_estimate:,.2f} and ${upper_estimate:,.2f}")
-    revenue_label.pack(pady=10)
 
     root.mainloop()
 
