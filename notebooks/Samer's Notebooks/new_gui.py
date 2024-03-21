@@ -1,8 +1,9 @@
 import pandas as pd
-from tkinter import Tk, Label, Button, Entry, StringVar, messagebox, Canvas, font, LEFT
+from tkinter import Tk, Label, Button, Entry, StringVar, messagebox, font, Frame, Canvas
 from PIL import Image, ImageTk
 from joblib import load
-from tkinter.ttk import Combobox
+from tkinter.ttk import Combobox, Style, Button as TtkButton
+import time
 
 def load_data():
     dataset_path = '/Users/samer/Documents/github_repos/Cinemalytics/data/clean/updated_clean_combined_movies.csv'
@@ -33,8 +34,28 @@ label_encoder_age_rating = load('/Users/samer/Documents/github_repos/Cinemalytic
 label_encoder_platform = load('/Users/samer/Documents/github_repos/Cinemalytics/trained_models/platform_encoder.joblib')
 label_encoders = (label_encoder_genre, label_encoder_age_rating, label_encoder_platform)
 
+def fade_out(root):
+    alpha = root.attributes("-alpha")
+    while alpha > 0:
+        alpha -= 0.05  # Decrease the opacity by 5%
+        root.attributes("-alpha", alpha)
+        root.update()
+        time.sleep(0.05)  # Wait for 25ms
+
+    root.destroy()
+
+def fade_in(root):
+    alpha = 0
+    root.attributes("-alpha", alpha)
+    while alpha < 1:
+        alpha += 0.05  # Increase the opacity by 5%
+        new_alpha = min(alpha, 0.9)  # Ensure that the max opacity is 90%
+        root.attributes("-alpha", new_alpha)
+        root.update()
+        time.sleep(0.05)  # Wait for 25ms
+
 # Function to center the window
-def center_window(root, width=900, height=650):
+def center_window(root, width=900, height=500):
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     center_x = int(screen_width/2 - width/2)
@@ -43,31 +64,41 @@ def center_window(root, width=900, height=650):
 
 def start_window():
     root = Tk()
-    root.attributes("-alpha", 0.9)
-    center_window(root, width=900, height=650)
+    # root.attributes("-alpha", 0.9)
+    center_window(root, width=900, height=500)
     root.title("Cinemalytics")
 
-    # Create a Canvas and add a background image
-    canvas = Canvas(root, width=900, height=650)
+    canvas = Canvas(root, width=900, height=500)
     canvas.pack(fill="both", expand=True)
-    background_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/window_background.png')
-    # Add image to Canvas
-    canvas.create_image(0, 0, image=background_image, anchor='nw')
 
-    # Instead of using Label for the logo, use the Canvas
-    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(250, 250))
-    # Add logo to Canvas
-    canvas.create_image(450, 175, image=logo_image, anchor='center')
+    # Load and place the logo image on the Canvas
+    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(200, 200))
+    # Slightly lower the logo's position on the canvas
+    canvas.create_image(450, 150, image=logo_image, anchor='center')  # Adjusted position
 
-    # For buttons and other widgets, use the Canvas to create window-like effects
-    start_button = Button(root, text="Start", command=lambda: platform_window(root))
-    start_button_window = canvas.create_window(450, 400, window=start_button, anchor='center')
+    # Define a larger font for the project title
+    project_title_font = font.Font(size=24, family='Helvetica', weight='bold')
 
-    # Keep a reference to the images to prevent garbage collection
-    canvas.image = background_image
+    # Slightly lower the project title's position below the logo on the canvas
+    project_title_label = Label(root, text="Cinemalytics: Empowering Your Vision with Insights", font=project_title_font)
+    # Adjusted position
+    project_title_window = canvas.create_window(450, 350, window=project_title_label, anchor='center')
+
+    # Style for the Start button
+    style = Style()
+    style.configure("TButton", borderwidth=1, bordercolor="black", background="#d9d9d9", font=('Helvetica', 14), padding=6)
+
+    # Place the Start button at the bottom
+    start_button = TtkButton(root, text="Start", command=lambda: platform_window(root), style="TButton")
+    start_button_window = canvas.create_window(450, 450, window=start_button, anchor='center')  # Position is good
+
+    # Keep references to the images and widgets to prevent garbage collection
     canvas.logo_image = logo_image
+    canvas.project_title_label = project_title_label
 
+    fade_in(root)
     root.mainloop()
+
 
 def platform_window(previous_root):
     previous_root.destroy()
@@ -76,7 +107,11 @@ def platform_window(previous_root):
     center_window(root)
     root.title("Platform Prediction")
 
-    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(250, 250))
+    # Configure the style for the TButton to be grey
+    style = Style()
+    style.configure("TButton", borderwidth=1, bordercolor="black", background="#d9d9d9", font=('Helvetica', 14), padding=6)
+
+    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(200, 200))
     logo_label = Label(root, image=logo_image)
     logo_label.image = logo_image
     logo_label.grid(row=0, column=0, columnspan=2, padx=20, pady=20)
@@ -96,7 +131,7 @@ def platform_window(previous_root):
     Label(root, text="Duration (min):").grid(row=3, column=0, padx=10, pady=5)
     duration_entry = Entry(root, textvariable=duration_var)
     duration_entry.grid(row=3, column=1, padx=10, pady=5)
-    predict_button = Button(root, text="Predict Platform", command=lambda: validate_and_predict(root, genre_var.get(), duration_var.get(), age_rating_var.get()))
+    predict_button = TtkButton(root, text="Predict Platform", command=lambda: validate_and_predict(root, genre_var.get(), duration_var.get(), age_rating_var.get()), style="TButton")
     predict_button.grid(row=4, column=0, columnspan=2, pady=10)
 
     for i in range(5):
@@ -104,6 +139,7 @@ def platform_window(previous_root):
     for j in range(2):
         root.grid_columnconfigure(j, weight=1)
 
+    fade_in(root)
     root.mainloop()
 
 def validate_and_predict(root, genre_input, duration_input, age_rating_input):
@@ -150,21 +186,23 @@ def predict_platform(previous_root, genre_input, duration_input, age_rating_inpu
 def result_window(platform, predicted_revenue, genre, age_rating, duration):
     root = Tk()
     root.attributes("-alpha", 0.9)
-    center_window(root, width=900, height=650)
+    center_window(root, width=900, height=500)
     root.title(f"{platform} Prediction")
 
     # Define font styles
-    large_font = font.Font(size=16, family='Helvetica')  # Increase size as needed
+    large_font = font.Font(size=16, family='Helvetica')  # Normal font
+    bold_font = font.Font(size=16, family='Helvetica', weight='bold')  # Bold font for labels
 
     # Configure the grid
-    root.grid_columnconfigure(0, weight=1, minsize=300)  # Adjust minsize as needed for the logo
-    root.grid_columnconfigure(1, weight=3)  # This column will contain the text message
+    root.grid_columnconfigure(0, weight=1)
+    root.grid_columnconfigure(1, weight=0, minsize=200)  # This column will contain the logo
+    root.grid_columnconfigure(2, weight=3)  # This column will contain the text message
 
     app_logo_path = '/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png'
     app_logo_image = load_image(app_logo_path, size=(150, 150))
     app_logo_label = Label(root, image=app_logo_image)
     app_logo_label.image = app_logo_image
-    app_logo_label.grid(row=0, column=0, columnspan=2, pady=20)
+    app_logo_label.grid(row=0, column=0, columnspan=3, pady=20)
 
     platform_logos = {
         'Netflix': '/Users/samer/Documents/github_repos/Cinemalytics/images/thumbnail_netflix_shadow.png',
@@ -172,34 +210,35 @@ def result_window(platform, predicted_revenue, genre, age_rating, duration):
         'Disney+': '/Users/samer/Documents/github_repos/Cinemalytics/images/thumbnail_disney_plus_shadow.png',
     }
 
-    # Configure the grid
-    root.grid_rowconfigure(1, weight=1)
-    root.grid_columnconfigure(1, weight=1)
+    # Add an invisible frame to push the logo towards the center
+    invisible_frame = Frame(root)
+    invisible_frame.grid(row=1, column=0, sticky='nsew')
 
     logo_path = platform_logos.get(platform)
     if logo_path:
         logo_image = load_image(logo_path, size=(200, 200))
         logo_label = Label(root, image=logo_image)
         logo_label.image = logo_image
-        # Adjust padx to center the logo, increasing left padding
-        logo_label.grid(row=1, column=0, padx=(40, 20), pady=20, sticky='w')  # Adjust the tuple values as needed
+        logo_label.grid(row=1, column=1, padx=20, sticky='nsew')  # Adjust the padx value as needed
 
     message_text = (
         f"Genre: {genre}\n\nAge Rating: {age_rating}\n\nDuration: {duration} minutes\n\n"
         f"Recommendation: {platform}\n\nPredicted Revenue: ${predicted_revenue:,.2f}"
     )
-    # Remove the bg attribute to use the window's default background color
     message_label = Label(root, text=message_text, font=large_font, justify='left', anchor='n')
-    message_label.grid(row=1, column=1, padx=(100, 20), pady=20, sticky='nsew')  # Adjust the tuple values as needed
+    message_label.grid(row=1, column=2, padx=(20, 20), pady=(20, 20), sticky='nsew')  # Adjust the padx and pady values as needed
 
-    # Apply the large font to the back button and increase the pady for spacing
-    back_button = Button(root, text="Back to Start", command=lambda: restart_app(root), font=large_font)
-    back_button.grid(row=2, column=0, columnspan=2, pady=(20, 40))  # Increase pady as needed for spacing
+    # Apply the styled 'TButton' to the back button
+    back_button = TtkButton(root, text="Back to Start", command=lambda: restart_app(root), style="TButton")
+    back_button.grid(row=2, column=0, columnspan=3, pady=(20, 40))  # Increase pady as needed for spacing
 
+    fade_in(root)
     root.mainloop()
 
+
 def restart_app(current_root):
-    current_root.destroy()
+    fade_out(current_root)
+    # current_root.destroy()
     start_window()
 
 
