@@ -1,5 +1,5 @@
 import pandas as pd
-from tkinter import Tk, Label, Button, Entry, StringVar, messagebox
+from tkinter import Tk, Label, Button, Entry, StringVar, messagebox, Canvas, font, LEFT
 from PIL import Image, ImageTk
 from joblib import load
 from tkinter.ttk import Combobox
@@ -16,10 +16,12 @@ def process_data(df):
     unique_age_ratings = sorted(df['age_rating'].dropna().unique())
     return unique_genres, unique_age_ratings
 
-def load_image(path, size=(100, 100)):
-    original_logo = Image.open(path)
-    resized_logo = original_logo.resize(size, Image.Resampling.LANCZOS)
-    return ImageTk.PhotoImage(resized_logo)
+def load_image(path, size=None):
+    image = Image.open(path)
+    if size:
+        image = image.resize(size, Image.Resampling.LANCZOS)
+    return ImageTk.PhotoImage(image)
+
 
 # Global variables
 df = load_data()
@@ -32,7 +34,7 @@ label_encoder_platform = load('/Users/samer/Documents/github_repos/Cinemalytics/
 label_encoders = (label_encoder_genre, label_encoder_age_rating, label_encoder_platform)
 
 # Function to center the window
-def center_window(root, width=1200, height=650):
+def center_window(root, width=900, height=650):
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     center_x = int(screen_width/2 - width/2)
@@ -42,16 +44,28 @@ def center_window(root, width=1200, height=650):
 def start_window():
     root = Tk()
     root.attributes("-alpha", 0.9)
-    center_window(root, width=1200, height=650)
+    center_window(root, width=900, height=650)
     root.title("Cinemalytics")
 
-    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(250, 250))
-    logo_label = Label(root, image=logo_image)
-    logo_label.image = logo_image
-    logo_label.pack(pady=50)
+    # Create a Canvas and add a background image
+    canvas = Canvas(root, width=900, height=650)
+    canvas.pack(fill="both", expand=True)
+    background_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/window_background.png')
+    # Add image to Canvas
+    canvas.create_image(0, 0, image=background_image, anchor='nw')
 
+    # Instead of using Label for the logo, use the Canvas
+    logo_image = load_image('/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png', size=(250, 250))
+    # Add logo to Canvas
+    canvas.create_image(450, 175, image=logo_image, anchor='center')
+
+    # For buttons and other widgets, use the Canvas to create window-like effects
     start_button = Button(root, text="Start", command=lambda: platform_window(root))
-    start_button.pack(pady=20)
+    start_button_window = canvas.create_window(450, 400, window=start_button, anchor='center')
+
+    # Keep a reference to the images to prevent garbage collection
+    canvas.image = background_image
+    canvas.logo_image = logo_image
 
     root.mainloop()
 
@@ -133,37 +147,50 @@ def predict_platform(previous_root, genre_input, duration_input, age_rating_inpu
     except Exception as e:
         messagebox.showerror("Prediction Error", f"An error occurred during prediction.\n{e}")
 
+from tkinter import Tk, Label, Button, font
+
 def result_window(platform, predicted_revenue, genre, age_rating, duration):
     root = Tk()
     root.attributes("-alpha", 0.9)
-    center_window(root, width=1200, height=650)
+    # The center_window function should be defined elsewhere in your code
+    center_window(root, width=900, height=650)
     root.title(f"{platform} Prediction")
 
+    # Define font styles
+    large_font = font.Font(size=16, family='Helvetica')  # Increase size as needed
+
+    # Configure the grid
+    root.grid_columnconfigure(0, weight=1, minsize=300)  # Adjust minsize as needed for the logo
+    root.grid_columnconfigure(1, weight=3)  # This column will contain the text message
+
     app_logo_path = '/Users/samer/Documents/github_repos/Cinemalytics/images/cinemalytics_nobackground.png'
-    app_logo_image = load_image(app_logo_path, size=(250, 250))
+    app_logo_image = load_image(app_logo_path, size=(150, 150))
     app_logo_label = Label(root, image=app_logo_image)
     app_logo_label.image = app_logo_image
-    app_logo_label.pack(pady=50)
+    app_logo_label.grid(row=0, column=0, columnspan=2, pady=20)
 
     platform_logos = {
-        'Netflix': '/Users/samer/Documents/github_repos/Cinemalytics/images/netflix_logo_4.png',
-        'Prime Video': '/Users/samer/Documents/github_repos/Cinemalytics/images/prime_video_logo1.webp',
-        'Disney+': '/Users/samer/Documents/github_repos/Cinemalytics/images/disney_plus_logo1.png',
+        'Netflix': '/Users/samer/Documents/github_repos/Cinemalytics/images/thumbnail_netflix_shadow.png',
+        'Prime Video': '/Users/samer/Documents/github_repos/Cinemalytics/images/thumbnail_prime_video_shadow.png',
+        'Disney+': '/Users/samer/Documents/github_repos/Cinemalytics/images/thumbnail_disney_plus_shadow.png',
     }
 
     logo_path = platform_logos.get(platform)
     if logo_path:
-        logo_image = load_image(logo_path)
+        logo_image = load_image(logo_path, size=(200, 200))
         logo_label = Label(root, image=logo_image)
         logo_label.image = logo_image
-        logo_label.pack(pady=20)
+        # Adjust padx to center the logo
+        logo_label.grid(row=1, column=0, padx=(20, 100), pady=20, sticky='w')  # Adjust the tuple values as needed
 
-    message_label = Label(root, text=f"Based on your movie with the genre {genre}, age rating {age_rating}, and duration {duration} minutes,\nthe best platform for your movie is {platform}. The estimated revenue for your movie in this region is: ${predicted_revenue:,.2f}")
-    message_label.pack(pady=10)
+    # Create a text variable to adjust line spacing
+    message_text = f"Genre: {genre}\n\nAge Rating: {age_rating}\n\nDuration: {duration} minutes\n\nRecommendation: {platform}\n\nPredicted Revenue: ${predicted_revenue:,.2f}"
+    message_label = Label(root, text=message_text, font=large_font, justify='left', anchor='n', bg='black', fg='white')
+    message_label.grid(row=1, column=1, padx=(100, 20), pady=20, sticky='nsew')  # Adjust the tuple values as needed
 
-    # Add a "Back to Start" button
-    back_button = Button(root, text="Back to Start", command=lambda: restart_app(root))
-    back_button.pack(pady=20)
+    # Apply the large font to the back button and increase the pady for spacing
+    back_button = Button(root, text="Back to Start", command=lambda: restart_app(root), font=large_font)
+    back_button.grid(row=2, column=0, columnspan=2, pady=(20, 40))  # Increase pady as needed for spacing
 
     root.mainloop()
 
