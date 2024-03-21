@@ -147,12 +147,9 @@ def predict_platform(previous_root, genre_input, duration_input, age_rating_inpu
     except Exception as e:
         messagebox.showerror("Prediction Error", f"An error occurred during prediction.\n{e}")
 
-from tkinter import Tk, Label, Button, font
-
 def result_window(platform, predicted_revenue, genre, age_rating, duration):
     root = Tk()
     root.attributes("-alpha", 0.9)
-    # The center_window function should be defined elsewhere in your code
     center_window(root, width=900, height=650)
     root.title(f"{platform} Prediction")
 
@@ -175,17 +172,24 @@ def result_window(platform, predicted_revenue, genre, age_rating, duration):
         'Disney+': '/Users/samer/Documents/github_repos/Cinemalytics/images/thumbnail_disney_plus_shadow.png',
     }
 
+    # Configure the grid
+    root.grid_rowconfigure(1, weight=1)
+    root.grid_columnconfigure(1, weight=1)
+
     logo_path = platform_logos.get(platform)
     if logo_path:
         logo_image = load_image(logo_path, size=(200, 200))
         logo_label = Label(root, image=logo_image)
         logo_label.image = logo_image
-        # Adjust padx to center the logo
-        logo_label.grid(row=1, column=0, padx=(20, 100), pady=20, sticky='w')  # Adjust the tuple values as needed
+        # Adjust padx to center the logo, increasing left padding
+        logo_label.grid(row=1, column=0, padx=(40, 20), pady=20, sticky='w')  # Adjust the tuple values as needed
 
-    # Create a text variable to adjust line spacing
-    message_text = f"Genre: {genre}\n\nAge Rating: {age_rating}\n\nDuration: {duration} minutes\n\nRecommendation: {platform}\n\nPredicted Revenue: ${predicted_revenue:,.2f}"
-    message_label = Label(root, text=message_text, font=large_font, justify='left', anchor='n', bg='black', fg='white')
+    message_text = (
+        f"Genre: {genre}\n\nAge Rating: {age_rating}\n\nDuration: {duration} minutes\n\n"
+        f"Recommendation: {platform}\n\nPredicted Revenue: ${predicted_revenue:,.2f}"
+    )
+    # Remove the bg attribute to use the window's default background color
+    message_label = Label(root, text=message_text, font=large_font, justify='left', anchor='n')
     message_label.grid(row=1, column=1, padx=(100, 20), pady=20, sticky='nsew')  # Adjust the tuple values as needed
 
     # Apply the large font to the back button and increase the pady for spacing
