@@ -22,7 +22,15 @@ import joblib
 import tkinter as tk
 import tkinter.ttk as ttk
 
+# Get the absolute path of the script
+script_path = os.path.abspath(__file__)
+# Get the directory of the script
+script_dir = os.path.dirname(script_path)
+# Change the current working directory to the script directory
+os.chdir(script_dir)
+
 # Clean combined movies dataset
+# Change path if necessary
 movies_clean_path = r'https://raw.githubusercontent.com/ulquyorra-11/Cinemalytics/5da1bd9f3c477cf9c5337f0881c5eeefb3e4115b/data/clean/updated_clean_combined_movies.csv'
 df = pd.read_csv(movies_clean_path)
 
@@ -66,6 +74,7 @@ def load_image(path, size=None):
     return ImageTk.PhotoImage(image)
 
 # Global variables for image paths and labels
+# Change path if necessary
 APP_LOGO_PATH = 'images/cinemalytics_nobackground.png'
 PLATFORM_LOGOS = {
     'Netflix': 'images/thumbnail_netflix_shadow.png',
@@ -195,17 +204,20 @@ def platform_window(previous_root):
     root.mainloop()
 
 def validate_and_predict(root, genre_input, duration_input, age_rating_input):
-    if not genre_input or not duration_input or not age_rating_input:
-        messagebox.showerror("Input Error", "Please enter all the required fields.")
+    # Check if any of the required fields is empty
+    if not genre_input.strip() or not duration_input.strip() or not age_rating_input.strip():
+        messagebox.showerror("Input Error", "Please fill out all fields.")
         return
 
+    # Try converting the duration input to an integer to check if it's a valid number
     try:
         duration = int(duration_input)
     except ValueError:
-        messagebox.showerror("Input Error", "Please enter a full number for duration.")
+        messagebox.showerror("Input Error", "Please enter a valid number for duration.")
         return
 
-    predict_platform(root, genre_input, duration_input, age_rating_input)
+    # If both checks pass, then call the predict_platform function
+    predict_platform(root, genre_input, duration, age_rating_input)
 
 def predict_platform(previous_root, genre_input, duration_input, age_rating_input):
     if not genre_input or not duration_input or not age_rating_input:
