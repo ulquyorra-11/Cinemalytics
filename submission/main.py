@@ -47,6 +47,7 @@ disney_plus_movies_genre_counts = disney_plus_df['genre'].value_counts()
 
 
 def load_data():
+    # Change path if necessary
     dataset_path = r'https://raw.githubusercontent.com/ulquyorra-11/Cinemalytics/5da1bd9f3c477cf9c5337f0881c5eeefb3e4115b/data/clean/updated_clean_combined_movies.csv'
     return pd.read_csv(dataset_path)
 
